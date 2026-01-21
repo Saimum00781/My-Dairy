@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { DollarSign, PieChart as ChartIcon, Plus } from 'lucide-react';
+import { DollarSign, PieChart as ChartIcon, Plus, Wallet } from 'lucide-react';
 import { fetchExpenses, addExpense } from '../services';
 import { Expense } from '../types';
 
@@ -79,29 +79,44 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({ userId }) => {
         </div>
       </div>
 
-      <div className="flex gap-2 mb-6">
-          <input 
-            type="number" 
-            placeholder="Amount" 
-            className="w-24 bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
-            value={amount}
-            onChange={e => setAmount(e.target.value)}
-          />
-          <input 
-            type="text" 
-            placeholder="Category (e.g. Food)" 
-            className="flex-1 bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
-            value={category}
-            onChange={e => setCategory(e.target.value)}
-          />
-          <button onClick={handleAdd} className="bg-emerald-600 hover:bg-emerald-500 text-white p-2 rounded-lg">
-              <Plus className="w-5 h-5" />
+      <form onSubmit={handleAdd} className="flex flex-col gap-3 mb-6">
+          <div className="flex gap-3">
+            <div className="relative w-1/3 min-w-[80px]">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-gray-400 text-sm">$</span>
+                </div>
+                <input 
+                    type="number" 
+                    placeholder="0" 
+                    className="w-full bg-black/20 border border-white/10 rounded-lg py-2 pl-6 pr-2 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 text-sm"
+                    value={amount}
+                    onChange={e => setAmount(e.target.value)}
+                />
+            </div>
+            <input 
+                type="text" 
+                placeholder="Category (e.g. Food)" 
+                className="flex-1 bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 text-sm"
+                value={category}
+                onChange={e => setCategory(e.target.value)}
+            />
+          </div>
+          <button 
+            type="submit" 
+            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg flex items-center justify-center gap-2 text-sm font-bold transition-colors"
+          >
+              <Plus className="w-4 h-4" /> Add Transaction
           </button>
-      </div>
+      </form>
 
       {/* Mini Chart */}
       <div className="flex-1 flex items-end justify-between gap-2 min-h-[100px] border-b border-white/10 pb-4 mb-4">
-        {chartBars.length === 0 && <span className="w-full text-center text-gray-500 text-sm">No data yet</span>}
+        {chartBars.length === 0 && (
+            <div className="w-full h-full flex flex-col items-center justify-center text-gray-500 opacity-50">
+                <Wallet className="w-8 h-8 mb-2" />
+                <span className="text-sm">No expenses yet</span>
+            </div>
+        )}
         {chartBars.map((bar, idx) => (
             <div key={idx} className="flex-1 flex flex-col items-center gap-2 group">
                 <div className="w-full bg-emerald-500/10 rounded-t-lg relative h-32 flex items-end justify-center overflow-hidden">
@@ -110,7 +125,7 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({ userId }) => {
                         style={{ height: `${bar.pct}%` }}
                     />
                 </div>
-                <span className="text-xs text-gray-400 truncate w-full text-center">{bar.cat}</span>
+                <span className="text-xs text-gray-400 truncate w-full text-center" title={bar.cat}>{bar.cat}</span>
             </div>
         ))}
       </div>
@@ -118,9 +133,12 @@ export const FinanceManager: React.FC<FinanceManagerProps> = ({ userId }) => {
       {/* Recent List */}
       <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar max-h-[150px]">
           {expenses.map(ex => (
-              <div key={ex.id} className="flex justify-between items-center text-sm p-2 hover:bg-white/5 rounded">
-                  <span className="text-gray-300">{ex.category}</span>
-                  <span className="text-white font-mono">${ex.amount}</span>
+              <div key={ex.id} className="flex justify-between items-center text-sm p-2 hover:bg-white/5 rounded transition-colors border border-transparent hover:border-white/5">
+                  <div className="flex items-center gap-2 overflow-hidden">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></div>
+                      <span className="text-gray-300 truncate">{ex.category}</span>
+                  </div>
+                  <span className="text-white font-mono shrink-0">${ex.amount}</span>
               </div>
           ))}
       </div>

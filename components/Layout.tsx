@@ -1,30 +1,19 @@
 import React, { ReactNode } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Book, Image as ImageIcon, LogOut, Moon, Sun, Settings, BookOpen } from 'lucide-react';
-import { auth } from '../firebase';
-import { signOut } from 'firebase/auth';
 
 interface LayoutProps {
   children: ReactNode;
   user: any;
+  onLogout: () => void;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children, user }) => {
-  const navigate = useNavigate();
+export const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
   const [darkMode, setDarkMode] = React.useState(true);
 
   const toggleTheme = () => {
     setDarkMode(!darkMode);
     document.documentElement.classList.toggle('dark');
-  };
-
-  const handleLogout = async () => {
-    if (auth) {
-        await signOut(auth);
-    } else {
-        localStorage.removeItem('demo_user');
-        window.location.reload();
-    }
   };
 
   const navItems = [
@@ -74,7 +63,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, user }) => {
              </button>
           </div>
           <button
-            onClick={handleLogout}
+            onClick={onLogout}
             className="flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg w-full transition-colors"
           >
             <LogOut className="w-4 h-4" />
@@ -97,7 +86,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, user }) => {
                     <item.icon className="w-6 h-6" />
                 </NavLink>
             ))}
-             <button onClick={handleLogout}><LogOut className="w-6 h-6 text-red-400" /></button>
+             <button onClick={onLogout}><LogOut className="w-6 h-6 text-red-400" /></button>
         </div>
       </div>
 

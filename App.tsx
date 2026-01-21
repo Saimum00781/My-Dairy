@@ -10,7 +10,7 @@ import { DigitalDiary } from './components/DigitalDiary';
 import { Settings } from './components/Settings';
 
 const App: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,10 +40,7 @@ const App: React.FC = () => {
     if (demoUser) {
         setUser(JSON.parse(demoUser));
         setLoading(false);
-        return;
-    }
-
-    if (auth) {
+    } else if (auth) {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
             setLoading(false);
@@ -54,17 +51,38 @@ const App: React.FC = () => {
     }
   }, []);
 
+  const handleLoginSuccess = () => {
+      // Check local storage for demo user immediately after successful guest login
+      const demoUser = localStorage.getItem('demo_user');
+      if (demoUser) {
+          setUser(JSON.parse(demoUser));
+      }
+      // Note: If using Firebase auth, the onAuthStateChanged listener in useEffect will handle the update
+  };
+
+  const handleLogout = async () => {
+    if (auth) {
+        try {
+            await auth.signOut();
+        } catch (error) {
+            console.error("Logout error", error);
+        }
+    }
+    localStorage.removeItem('demo_user');
+    setUser(null);
+  };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center bg-[#1e1b4b] text-white">Loading Command Center...</div>;
   }
 
   if (!user) {
-    return <Auth onLoginSuccess={() => window.location.reload()} />;
+    return <Auth onLoginSuccess={handleLoginSuccess} />;
   }
 
   return (
     <HashRouter>
-      <Layout user={user}>
+      <Layout user={user} onLogout={handleLogout}>
         <Routes>
           <Route path="/" element={<Dashboard userId={user.uid} />} />
           <Route path="/showcase" element={<Showcase userId={user.uid} />} />

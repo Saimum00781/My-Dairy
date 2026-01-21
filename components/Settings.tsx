@@ -46,7 +46,7 @@ const themes: Theme[] = [
 ];
 
 export const Settings: React.FC = () => {
-  const [currentThemeId, setCurrentThemeId] = useState('violet');
+  const [currentThemeId, setCurrentThemeId] = useState('emerald');
 
   useEffect(() => {
     const saved = localStorage.getItem('app_theme_id');
